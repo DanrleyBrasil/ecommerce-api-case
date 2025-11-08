@@ -2,6 +2,7 @@ package com.danrley.ecommerce.products.entity;
 
 
 import com.danrley.ecommerce.shared.entity.BaseEntity;
+import com.danrley.ecommerce.shared.entity.BaseEntitySimple;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,7 +27,7 @@ import jakarta.persistence.*;
 @Setter
 @Entity
 @Table(name = "suppliers")
-public class Supplier extends BaseEntity {
+public class Supplier extends BaseEntitySimple {
 
     @Column(nullable = false, length = 100)
     private String name;

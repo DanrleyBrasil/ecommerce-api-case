@@ -1,13 +1,17 @@
 package com.danrley.ecommerce.auth.entity;
 
 import com.danrley.ecommerce.shared.entity.BaseEntity;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Entidade que representa um usuário do sistema.
@@ -28,9 +32,12 @@ import java.util.Set;
  */
 @Getter
 @Setter
+@NoArgsConstructor // ✅ NECESSÁRIO para JPA
+@AllArgsConstructor // ✅ NECESSÁRIO para @Builder
+@Builder // ✅ ADICIONAR ESTA ANOTAÇÃO!
 @Entity
 @Table(name = "users")
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
     @Column(nullable = false, length = 100)
     private String name;
@@ -42,6 +49,7 @@ public class User extends BaseEntity {
     private String password;
 
     @Column(nullable = false)
+    @Builder.Default // ✅ IMPORTANTE: Define valor padrão no builder
     private Boolean active = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -50,5 +58,42 @@ public class User extends BaseEntity {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @Builder.Default // ✅ IMPORTANTE: Define valor padrão no builder
     private Set<Role> roles = new HashSet<>();
+
+    // ========================================
+    // Implementação de UserDetails (Spring Security)
+    // ========================================
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getUsername() {
+        return email; // Spring Security usa email como username
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return active;
+    }
 }

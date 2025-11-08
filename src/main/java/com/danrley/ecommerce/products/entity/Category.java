@@ -1,6 +1,7 @@
 package com.danrley.ecommerce.products.entity;
 
 import com.danrley.ecommerce.shared.entity.BaseEntity;
+import com.danrley.ecommerce.shared.entity.BaseEntitySimple;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,7 +26,7 @@ import jakarta.persistence.*;
 @Setter
 @Entity
 @Table(name = "categories")
-public class Category extends BaseEntity {
+public class Category extends BaseEntitySimple {
 
     @Column(nullable = false, unique = true, length = 100)
     private String name;
