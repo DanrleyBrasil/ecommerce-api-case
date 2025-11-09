@@ -2,17 +2,22 @@ package com.danrley.ecommerce.shared.exception;
 
 import com.danrley.ecommerce.shared.enums.OrderStatus;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * Exceção lançada quando uma operação é tentada em um pedido com status inválido.
  *
- * Casos de uso:
- * 1. Tentar processar pagamento de pedido já APROVADO ou CANCELADO
- * 2. Tentar cancelar pedido já APROVADO
- * 3. Tentar reprocessar pedido EXPIRADO
+ * <p><strong>Casos de uso:</strong></p>
+ * <ol>
+ *   <li>Tentar processar pagamento de pedido já APROVADO ou CANCELADO</li>
+ *   <li>Tentar cancelar pedido já APROVADO</li>
+ *   <li>Tentar reprocessar pedido EXPIRADO</li>
+ * </ol>
  *
- * Relacionado ao ADR-003: Controle de status de pedidos com reserva temporária
+ * <p>Relacionado ao ADR-003: Controle de status de pedidos com reserva temporária.</p>
  *
- * Retorna HTTP 400 Bad Request quando tratada pelo GlobalExceptionHandler.
+ * <p>Retorna HTTP 400 Bad Request quando tratada pelo GlobalExceptionHandler.</p>
  *
  * @author Danrley Brasil dos Santos
  * @since 1.0
@@ -57,10 +62,11 @@ public class InvalidOrderStatusException extends BusinessException {
     }
 
     /**
-     * Construtor para indicar que pedido já foi processado.
+     * Factory method para indicar que pedido já foi processado.
      *
      * @param orderId ID do pedido
      * @param currentStatus Status atual do pedido
+     * @return Exceção configurada
      */
     public static InvalidOrderStatusException alreadyProcessed(Long orderId, OrderStatus currentStatus) {
         return new InvalidOrderStatusException(
@@ -70,9 +76,10 @@ public class InvalidOrderStatusException extends BusinessException {
     }
 
     /**
-     * Construtor para indicar que pedido expirou.
+     * Factory method para indicar que pedido expirou.
      *
      * @param orderId ID do pedido
+     * @return Exceção configurada
      */
     public static InvalidOrderStatusException expired(Long orderId) {
         return new InvalidOrderStatusException(
@@ -81,6 +88,31 @@ public class InvalidOrderStatusException extends BusinessException {
         );
     }
 
+    /**
+     * Factory method para indicar que pedido expirou (com informação de quando).
+     *
+     * <p>Versão mais informativa que inclui a data/hora de expiração
+     * para melhor rastreabilidade e UX.</p>
+     *
+     * @param orderId ID do pedido
+     * @param reservedUntil Data/hora que a reserva expirou
+     * @return Exceção configurada
+     */
+    public static InvalidOrderStatusException expired(Long orderId, LocalDateTime reservedUntil) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String formattedDate = reservedUntil != null ? reservedUntil.format(formatter) : "N/A";
+
+        return new InvalidOrderStatusException(
+                orderId,
+                String.format(
+                        "Pedido %d expirou em %s. A reserva de estoque foi liberada. Crie um novo pedido.",
+                        orderId,
+                        formattedDate
+                )
+        );
+    }
+
+    // Getters
     public Long getOrderId() {
         return orderId;
     }
