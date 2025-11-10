@@ -48,17 +48,22 @@ A API utiliza **JWT (JSON Web Token)** para autenticação.
 **Request:**
 ```json
 {
-  "email": "admin@ecommerce.com",
-  "password": "admin123"
+  "email": "user@master.com",
+  "password": "senha123"
 }
 ```
 
 **Response:**
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token": "eyJhbGciOiJIUzUxMiJ9.eyJyb2x...",
   "type": "Bearer",
-  "expiresIn": 86400000
+  "userId": 12,
+  "name": "User Teste",
+  "email": "user@master.com",
+  "roles": [
+    "USER"
+  ]
 }
 ```
 
@@ -77,10 +82,10 @@ curl -X GET http://localhost:8080/api/products \
 
 ### Usuários de Teste
 
-| Email | Senha | Perfil |
-|-------|-------|--------|
-| admin@ecommerce.com | admin123 | ADMIN |
-| user1@ecommerce.com | user123 | USER |
+| Email | Senha    | Perfil |
+|-------|----------|--------|
+| admin@ecommerce.com | senha123 | ADMIN |
+| user1@ecommerce.com | senha123  | USER |
 
 Banco de dados vem pré-populado com 14 produtos e 7 pedidos de exemplo.
 

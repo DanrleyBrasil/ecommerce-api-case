@@ -204,17 +204,17 @@ INSERT INTO roles (id, name, description) VALUES
 -- Senha padrão: Admin@123 (admin) | User@123 (users)
 -- -----------------------------------------
 INSERT INTO users (name, email, password, active, created_by) VALUES
-                                                                  ('Administrador', 'admin@ecommerce.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', true, 'SYSTEM'),
-                                                                  ('João Silva', 'user1@test.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', true, 'SYSTEM'),
-                                                                  ('Maria Santos', 'user2@test.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', true, 'SYSTEM'),
-                                                                  ('Pedro Oliveira', 'user3@test.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', true, 'SYSTEM'),
-                                                                  ('Ana Costa', 'user4@test.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', true, 'SYSTEM'),
-                                                                  ('Lucas Almeida', 'user5@test.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', true, 'SYSTEM'),
-                                                                  ('Carla Ferreira', 'user6@test.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', true, 'SYSTEM'),
-                                                                  ('Rafael Souza', 'user7@test.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', true, 'SYSTEM'),
-                                                                  ('Fernanda Lima', 'user8@test.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', true, 'SYSTEM'),
-                                                                  ('Gustavo Rocha', 'user9@test.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', true, 'SYSTEM'),
-                                                                  ('Juliana Martins', 'user10@test.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', true, 'SYSTEM');
+                                                                  ('Administrador', 'admin@ecommerce.com', '$2a$10$3bE9TwEwmisxA.WRU8GRju96Ebca5/T//FOCEW2GsFsOv0iUSfLBC', true, 'SYSTEM'),
+                                                                  ('João Silva', 'user1@ecommerce.com', '$2a$10$3bE9TwEwmisxA.WRU8GRju96Ebca5/T//FOCEW2GsFsOv0iUSfLBC', true, 'SYSTEM'),
+                                                                  ('Maria Santos', 'user2@ecommerce.com', '$2a$10$3bE9TwEwmisxA.WRU8GRju96Ebca5/T//FOCEW2GsFsOv0iUSfLBC', true, 'SYSTEM'),
+                                                                  ('Pedro Oliveira', 'user3@ecommerce.com', '$2a$10$3bE9TwEwmisxA.WRU8GRju96Ebca5/T//FOCEW2GsFsOv0iUSfLBC', true, 'SYSTEM'),
+                                                                  ('Ana Costa', 'user4@ecommerce.com', '$2a$10$3bE9TwEwmisxA.WRU8GRju96Ebca5/T//FOCEW2GsFsOv0iUSfLBC', true, 'SYSTEM'),
+                                                                  ('Lucas Almeida', 'user5@ecommerce.com', '$2a$10$3bE9TwEwmisxA.WRU8GRju96Ebca5/T//FOCEW2GsFsOv0iUSfLBC', true, 'SYSTEM'),
+                                                                  ('Carla Ferreira', 'user6@ecommerce.com', '$2a$10$3bE9TwEwmisxA.WRU8GRju96Ebca5/T//FOCEW2GsFsOv0iUSfLBC', true, 'SYSTEM'),
+                                                                  ('Rafael Souza', 'user7@ecommerce.com', '$2a$10$3bE9TwEwmisxA.WRU8GRju96Ebca5/T//FOCEW2GsFsOv0iUSfLBC', true, 'SYSTEM'),
+                                                                  ('Fernanda Lima', 'user8@ecommerce.com', '$2a$10$3bE9TwEwmisxA.WRU8GRju96Ebca5/T//FOCEW2GsFsOv0iUSfLBC', true, 'SYSTEM'),
+                                                                  ('Gustavo Rocha', 'user9@ecommerce.com', '$2a$10$3bE9TwEwmisxA.WRU8GRju96Ebca5/T//FOCEW2GsFsOv0iUSfLBC', true, 'SYSTEM'),
+                                                                  ('Juliana Martins', 'user10@ecommerce.com', '$2a$10$3bE9TwEwmisxA.WRU8GRju96Ebca5/T//FOCEW2GsFsOv0iUSfLBC', true, 'SYSTEM');
 
 -- -----------------------------------------
 -- USER_ROLES (associações)
@@ -303,17 +303,17 @@ INSERT INTO products (name, description, price, stock_quantity, reserved_quantit
 
 -- Pedidos APROVADOS (reserved_until = NULL, reserva já liberada)
 INSERT INTO orders (user_id, status, total_amount, order_date, payment_date, reserved_until, created_by) VALUES
-                                                                                                             (2, 'APROVADO', 939.70, DATE_SUB(NOW(), INTERVAL 25 DAY), DATE_SUB(NOW(), INTERVAL 25 DAY), NULL, 'user1@test.com'),
-                                                                                                             (3, 'APROVADO', 2799.80, DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_SUB(NOW(), INTERVAL 20 DAY), NULL, 'user2@test.com'),
-                                                                                                             (4, 'APROVADO', 1599.80, DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_SUB(NOW(), INTERVAL 15 DAY), NULL, 'user3@test.com'),
-                                                                                                             (5, 'APROVADO', 549.80, DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY), NULL, 'user4@test.com'),
-                                                                                                             (6, 'APROVADO', 3149.70, DATE_SUB(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 5 DAY), NULL, 'user5@test.com');
+                                                                                                             (2, 'APROVADO', 939.70, DATE_SUB(NOW(), INTERVAL 25 DAY), DATE_SUB(NOW(), INTERVAL 25 DAY), NULL, 'user1@ecommerce.com'),
+                                                                                                             (3, 'APROVADO', 2799.80, DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_SUB(NOW(), INTERVAL 20 DAY), NULL, 'user2@ecommerce.com'),
+                                                                                                             (4, 'APROVADO', 1599.80, DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_SUB(NOW(), INTERVAL 15 DAY), NULL, 'user3@ecommerce.com'),
+                                                                                                             (5, 'APROVADO', 549.80, DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY), NULL, 'user4@ecommerce.com'),
+                                                                                                             (6, 'APROVADO', 3149.70, DATE_SUB(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 5 DAY), NULL, 'user5@ecommerce.com');
 
 -- Pedidos PENDENTES (reserved_until = now + 10min, simulando reserva ativa)
 INSERT INTO orders (user_id, status, total_amount, order_date, payment_date, reserved_until, created_by) VALUES
-                                                                                                             (7, 'PENDENTE', 839.80, NOW(), NULL, DATE_ADD(NOW(), INTERVAL 10 MINUTE), 'user6@test.com'),
-                                                                                                             (8, 'PENDENTE', 449.90, NOW(), NULL, DATE_ADD(NOW(), INTERVAL 10 MINUTE), 'user7@test.com'),
-                                                                                                             (9, 'PENDENTE', 1649.80, NOW(), NULL, DATE_ADD(NOW(), INTERVAL 10 MINUTE), 'user8@test.com');
+                                                                                                             (7, 'PENDENTE', 839.80, NOW(), NULL, DATE_ADD(NOW(), INTERVAL 10 MINUTE), 'user6@ecommerce.com'),
+                                                                                                             (8, 'PENDENTE', 449.90, NOW(), NULL, DATE_ADD(NOW(), INTERVAL 10 MINUTE), 'user7@ecommerce.com'),
+                                                                                                             (9, 'PENDENTE', 1649.80, NOW(), NULL, DATE_ADD(NOW(), INTERVAL 10 MINUTE), 'user8@ecommerce.com');
 
 -- -----------------------------------------
 -- ORDER_ITEMS (itens dos pedidos)
@@ -321,44 +321,44 @@ INSERT INTO orders (user_id, status, total_amount, order_date, payment_date, res
 
 -- Pedido #1 (João - APROVADO): Mouse + Teclado + Mousepad
 INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal, created_by) VALUES
-                                                                                               (1, 1, 2, 149.90, 299.80, 'user1@test.com'),
-                                                                                               (1, 2, 1, 489.90, 489.90, 'user1@test.com'),
-                                                                                               (1, 11, 1, 129.90, 129.90, 'user1@test.com');
+                                                                                               (1, 1, 2, 149.90, 299.80, 'user1@ecommerce.com'),
+                                                                                               (1, 2, 1, 489.90, 489.90, 'user1@ecommerce.com'),
+                                                                                               (1, 11, 1, 129.90, 129.90, 'user1@ecommerce.com');
 
 -- Pedido #2 (Maria - APROVADO): RTX 3060 + Mousepad
 INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal, created_by) VALUES
-                                                                                               (2, 6, 1, 2499.90, 2499.90, 'user2@test.com'),
-                                                                                               (2, 11, 1, 129.90, 129.90, 'user2@test.com');
+                                                                                               (2, 6, 1, 2499.90, 2499.90, 'user2@ecommerce.com'),
+                                                                                               (2, 11, 1, 129.90, 129.90, 'user2@ecommerce.com');
 
 -- Pedido #3 (Pedro - APROVADO): Ryzen 5 + RAM
 INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal, created_by) VALUES
-                                                                                               (3, 5, 1, 1299.90, 1299.90, 'user3@test.com'),
-                                                                                               (3, 7, 1, 349.90, 349.90, 'user3@test.com');
+                                                                                               (3, 5, 1, 1299.90, 1299.90, 'user3@ecommerce.com'),
+                                                                                               (3, 7, 1, 349.90, 349.90, 'user3@ecommerce.com');
 
 -- Pedido #4 (Ana - APROVADO): SSD NVMe + Hub
 INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal, created_by) VALUES
-                                                                                               (4, 9, 1, 499.90, 499.90, 'user4@test.com'),
-                                                                                               (4, 12, 1, 89.90, 89.90, 'user4@test.com');
+                                                                                               (4, 9, 1, 499.90, 499.90, 'user4@ecommerce.com'),
+                                                                                               (4, 12, 1, 89.90, 89.90, 'user4@ecommerce.com');
 
 -- Pedido #5 (Lucas - APROVADO): RTX 3060 + Headset + Mouse
 INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal, created_by) VALUES
-                                                                                               (5, 6, 1, 2499.90, 2499.90, 'user5@test.com'),
-                                                                                               (5, 3, 1, 399.90, 399.90, 'user5@test.com'),
-                                                                                               (5, 1, 1, 149.90, 149.90, 'user5@test.com');
+                                                                                               (5, 6, 1, 2499.90, 2499.90, 'user5@ecommerce.com'),
+                                                                                               (5, 3, 1, 399.90, 399.90, 'user5@ecommerce.com'),
+                                                                                               (5, 1, 1, 149.90, 149.90, 'user5@ecommerce.com');
 
 -- Pedido #6 (Carla - PENDENTE): Monitor + Mousepad
 INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal, created_by) VALUES
-                                                                                               (6, 8, 1, 899.90, 899.90, 'user6@test.com'),
-                                                                                               (6, 11, 1, 129.90, 129.90, 'user6@test.com');
+                                                                                               (6, 8, 1, 899.90, 899.90, 'user6@ecommerce.com'),
+                                                                                               (6, 11, 1, 129.90, 129.90, 'user6@ecommerce.com');
 
 -- Pedido #7 (Rafael - PENDENTE): Webcam
 INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal, created_by) VALUES
-    (7, 4, 1, 449.90, 449.90, 'user7@test.com');
+    (7, 4, 1, 449.90, 449.90, 'user7@ecommerce.com');
 
 -- Pedido #8 (Fernanda - PENDENTE): Ryzen 5 + RAM
 INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal, created_by) VALUES
-                                                                                               (8, 5, 1, 1299.90, 1299.90, 'user8@test.com'),
-                                                                                               (8, 7, 1, 349.90, 349.90, 'user8@test.com');
+                                                                                               (8, 5, 1, 1299.90, 1299.90, 'user8@ecommerce.com'),
+                                                                                               (8, 7, 1, 349.90, 349.90, 'user8@ecommerce.com');
 
 -- Corrigir totais
 UPDATE orders SET total_amount = 919.60 WHERE id = 1;
