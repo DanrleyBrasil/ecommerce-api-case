@@ -4,7 +4,6 @@
 
 1. Importar collection: `postman/ecommerce-api-tests.json`
 2. Docker rodando: `docker-compose ps` (ambos `healthy`)
-3. Swagger acessível: http://localhost:8080/swagger-ui.html
 
 ---
 
@@ -18,7 +17,7 @@
 ```json
 {
   "email": "admin@ecommerce.com",
-  "password": "Admin@123"
+  "password": "senha123"
 }
 ```
 
@@ -26,7 +25,7 @@
 - Status: `200 OK`
 - Response contém `token` (JWT)
 - Response contém `roles: ["ADMIN"]`
-- Token salvo automaticamente em `{{admin_token}}`
+- Token precisa ser salvo em variável na collection `{{token_admin}}`
 
 ---
 
@@ -37,8 +36,8 @@
 **Body**:
 ```json
 {
-  "email": "user1@test.com",
-  "password": "User@123"
+  "email": "user1@ecommerce.com",
+  "password": "senha123"
 }
 ```
 
@@ -46,7 +45,7 @@
 - Status: `200 OK`
 - Response contém `token` (JWT)
 - Response contém `roles: ["USER"]`
-- Token salvo automaticamente em `{{user_token}}`
+- Token precisa ser salvo em variável na collection `{{token_user}}`
 
 ---
 
@@ -97,13 +96,14 @@
 **Resultado Esperado**:
 - Status: `201 Created`
 - Response contém produto criado com `id`
-- Salvar `id` em `{{created_product_id}}`
+- Salvar `id` em `{{created_product_id}}` ou anotar o valor
 
 ---
 
 ### 2.4 Atualizar Produto
 
-**Endpoint**: `PUT /api/products/{{created_product_id}}`  
+**Endpoint**: `PUT /api/products/{{created_product_id}}`    
+**Observação**: Aqui será utilizado o ID do produto criado acima.  
 **Token**: `{{admin_token}}`  
 **Body**:
 ```json

@@ -141,7 +141,7 @@ erDiagram
 ```
 
 ---
-
+ **Observação**: O diagrama ER pode ser obtido através da extração em ferramentas como DBeaver
 ## 📋 Legenda de Cardinalidades
 
 | Notação | Significado | Exemplo |
@@ -507,7 +507,7 @@ Apenas `product_price_history` implementado.
 
 ---
 
-### 5. **Controle de Estoque com Reserva Temporária** ⭐ NOVO
+### 5. **Controle de Estoque com Reserva Temporária**
 
 **Campos adicionados**:
 - `products.reserved_quantity` - Estoque reservado temporariamente
@@ -532,7 +532,6 @@ Apenas `product_price_history` implementado.
 - **ADR-001**: Arquitetura Modular Monolítica
 - **ADR-003**: Locks Pessimistas + Reserva Temporária ⭐
 - **ADR-004**: Auditoria Seletiva + Escopo de CRUD
-- **database-README.md**: Instruções de importação e credenciais
 
 ---
 
@@ -540,3 +539,8 @@ Apenas `product_price_history` implementado.
 **Última Atualização**: 07/11/2025  
 **Responsável**: Danrley Brasil dos Santos  
 **Alterações**: Adicionado controle de reserva temporária (ADR-003)
+
+**Versão**: 1.2  
+**Última Atualização**: 10/11/2025  
+**Responsável**: Danrley Brasil dos Santos  
+**Alterações**: Revisão de documento para submissão

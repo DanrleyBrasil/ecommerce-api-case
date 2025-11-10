@@ -21,11 +21,13 @@ docker-compose up -d
 
 A aplicação vem com usuários pré-cadastrados:
 
-| Email | Senha | Perfil |
-|-------|-------|--------|
-| admin@ecommerce.com | admin123 | ADMIN |
-| user1@ecommerce.com | user123 | USER |
-| user2@ecommerce.com | user123 | USER |
+| Email               | Senha    | Perfil |
+|---------------------|----------|--------|
+| admin@ecommerce.com | senha123 | ADMIN  |
+| user1@ecommerce.com | senha123 | USER   |
+| user2@ecommerce.com | senha123 | USER   |
+| ...                 | ...      | ...    |
+| user10@ecommerce.com | senha123 | USER   |
 
 ## 🧪 Testar Rapidamente
 
@@ -37,7 +39,7 @@ Acesse http://localhost:8080/swagger-ui.html → `/api/auth/login`
 ```json
 {
   "email": "admin@ecommerce.com",
-  "password": "admin123"
+  "password": "senha123"
 }
 ```
 

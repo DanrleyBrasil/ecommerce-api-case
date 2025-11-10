@@ -1,185 +1,322 @@
 # E-Commerce API
 
-API RESTful para gerenciamento de e-commerce com autenticação JWT, CRUD de produtos e fluxo completo de pedidos com processamento de pagamentos.
+API RESTful construída com Spring Boot para gerenciamento completo de e-commerce, incluindo autenticação JWT, catálogo de produtos e processamento de pedidos.
 
-## 🚀 Tecnologias
+## 🚀 Stack Tecnológica
 
+**Core:**
 - Java 17
 - Spring Boot 3.5.7
-- Spring Security + JWT
+- Spring Security 6.x (com JWT)
 - Spring Data JPA
 - MySQL 8.0
-- Docker & Docker Compose
+
+**Ferramentas:**
 - Maven
+- Docker & Docker Compose
 - Swagger/OpenAPI 3.0
 
-## 📋 Pré-requisitos
-
-- Docker 20.10+
-- Docker Compose 2.0+
-- Git
-
 ## ⚡ Início Rápido
+
 ```bash
 git clone https://github.com/DanrleyBrasil/ecommerce-api-case.git
 cd ecommerce-api-case
 docker-compose up -d
 ```
 
-**Pronto!** Acesse http://localhost:8080/swagger-ui.html
+**Pronto!** A aplicação estará rodando em `http://localhost:8080`
 
-Para guia detalhado, veja [QUICKSTART.md](QUICKSTART.md)
+Acesse a documentação interativa: `http://localhost:8080/swagger-ui.html`
 
-## 📚 Documentação da API
+> 💡 Para mais detalhes sobre configuração e troubleshooting, consulte [QUICKSTART.md](QUICKSTART.md)
 
-Acesse a documentação interativa Swagger:
+## 📐 Arquitetura
+
+O projeto segue uma **arquitetura modular monolítica**, organizando o código por domínios de negócio para facilitar manutenção e permitir evolução futura para microserviços quando necessário.
+
+### Estrutura de Módulos
+
 ```
-http://localhost:8080/swagger-ui.html
+src/main/java/com/danrley/ecommerce/
+├── shared/              # Componentes transversais
+│   ├── entity/         # BaseEntity com auditoria automática
+│   ├── enums/          # Enums compartilhados (OrderStatus, PaymentStatus, etc)
+│   └── exception/      # Tratamento global de exceções
+│
+├── auth/               # Autenticação e Autorização
+│   ├── controller/    # Endpoints de login/registro
+│   ├── service/       # Lógica de autenticação e geração de JWT
+│   ├── security/      # Filtros, providers e configurações Spring Security
+│   ├── entity/        # User, Role
+│   └── dto/           # LoginRequest, AuthResponse
+│
+├── products/          # Gestão de Catálogo
+│   ├── controller/   # CRUD de produtos (com soft delete)
+│   ├── service/      # Regras de negócio e validações
+│   ├── repository/   # Consultas JPA customizadas
+│   ├── entity/       # Product, Category, Supplier
+│   └── dto/          # ProductRequest, ProductResponse
+│
+├── orders/           # Processamento de Pedidos
+│   ├── controller/  # Criação e consulta de pedidos
+│   ├── service/     # Lógica de pedidos e controle de estoque
+│   ├── repository/  # Queries otimizadas com locks pessimistas
+│   ├── entity/      # Order, OrderItem, Payment
+│   └── dto/         # OrderRequest, OrderResponse
+│
+└── reports/         # Relatórios Gerenciais
+    ├── controller/ # Endpoints administrativos
+    ├── service/    # Agregações e queries SQL otimizadas
+    └── dto/        # DTOs especializados para relatórios
 ```
 
-## 🔐 Autenticação
+### Decisões Arquiteturais (ADRs)
 
-A API utiliza **JWT (JSON Web Token)** para autenticação.
+A documentação completa das decisões técnicas está disponível nos Architecture Decision Records:
 
-### Obter Token
+- **[ADR-001](./docs/decisions/ADR-001-arquitetura-modular.md)** - Escolha da Arquitetura Modular Monolítica
+- **[ADR-002](./docs/decisions/ADR-002-jwt-autenticacao.md)** - Implementação de JWT para Autenticação
+- **[ADR-003](./docs/decisions/ADR-003-locks-pessimistas.md)** - Locks Pessimistas para Controle de Estoque
+- **[ADR-004](./docs/decisions/ADR-004-auditoria-seletiva.md)** - Estratégia de Auditoria Seletiva
+
+### Diagramas Técnicos
+
+- **[Diagrama de Classes](./docs/architecture/diagrama-classes.md)** - Modelo de domínio e relacionamentos
+- **[Diagrama ER](./docs/architecture/diagrama-ER-database.md)** - Estrutura do banco de dados
+- **[Diagrama de Sequência](./docs/architecture/diagrama-sequencia.md)** - Fluxo de criação de pedidos
+
+## 🔐 Autenticação com Spring Security
+
+A API utiliza **JWT (JSON Web Token)** com Spring Security para controle de acesso baseado em roles.
+
+### Obtendo um Token
 
 **Endpoint:** `POST /api/auth/login`
 
-**Request:**
 ```json
 {
-  "email": "user@master.com",
+  "email": "admin@ecommerce.com",
   "password": "senha123"
 }
 ```
 
-**Response:**
+**Resposta:**
 ```json
 {
-  "token": "eyJhbGciOiJIUzUxMiJ9.eyJyb2x...",
+  "token": "eyJhbGciOiJIUzUxMiJ9...",
   "type": "Bearer",
-  "userId": 12,
-  "name": "User Teste",
-  "email": "user@master.com",
-  "roles": [
-    "USER"
-  ]
+  "userId": 1,
+  "name": "Administrador",
+  "email": "admin@ecommerce.com",
+  "roles": ["ADMIN"]
 }
 ```
 
-### Usar Token nas Requisições
+### Usando o Token
 
-Inclua o token no header `Authorization`:
-```
+Inclua o token JWT no header de todas as requisições protegidas:
+
+```bash
 Authorization: Bearer {seu-token-jwt}
 ```
 
-**Exemplo com curl:**
+**Exemplo:**
 ```bash
 curl -X GET http://localhost:8080/api/products \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9..."
 ```
 
-### Usuários de Teste
+### Usuários Pré-configurados
 
-| Email | Senha    | Perfil |
-|-------|----------|--------|
-| admin@ecommerce.com | senha123 | ADMIN |
-| user1@ecommerce.com | senha123  | USER |
+| Email | Senha | Perfil | Permissões |
+|-------|-------|--------|-----------|
+| admin@ecommerce.com | senha123 | ADMIN | Acesso total + relatórios |
+| user1@ecommerce.com | senha123 | USER | Consulta e compra |
 
-Banco de dados vem pré-populado com 14 produtos e 7 pedidos de exemplo.
+> O banco de dados já vem populado com 12 produtos e 8 pedidos de exemplo para facilitar os testes.
 
-## 🔒 Decisões Técnicas
+## 📚 Documentação da API
 
-### Configuração de Ambiente
+A documentação completa da API está disponível via **Swagger UI** com suporte para autenticação JWT integrada:
 
-**Para este case técnico/demonstração:**
-- ✅ Valores default configurados (funciona out-of-the-box)
-- ✅ Senhas e secrets hardcoded em `application.yml` e `docker-compose.yml`
-- ✅ Foco em facilitar avaliação e testes
-
-**⚠️ Em ambiente de produção:**
-- ❌ NUNCA usar valores default em produção
-- ✅ Variáveis de ambiente obrigatórias via `.env` ou secrets manager
-- ✅ Secrets gerenciados (AWS Secrets Manager, HashiCorp Vault, Azure Key Vault)
-- ✅ Diferentes configurações por ambiente (dev/staging/prod)
-- ✅ Rotação automática de secrets
-- ✅ Auditoria de acesso a credenciais
-
-Para customização local (opcional), veja `.env.example`
-
-### Autenticação via Header Authorization
-
-Este projeto utiliza o padrão **Authorization Bearer** para transmissão de tokens JWT.
-
-**Alternativa considerada:** Uso de cookies `httpOnly` + proteção CSRF seria mais seguro contra ataques XSS, pois o JavaScript não teria acesso ao token. Essa abordagem é recomendada para ambientes de produção, especialmente em aplicações com frontend integrado.
-
-Para este case técnico, optou-se pelo padrão `Authorization Header` por:
-- Melhor compatibilidade com ferramentas de teste (Swagger UI, Postman)
-- Simplicidade de implementação no prazo do case
-- Padrão amplamente adotado em APIs RESTful
-
-## 🧪 Executar Testes
-```bash
-docker-compose exec api mvn test
+```
+http://localhost:8080/swagger-ui.html
 ```
 
-## 📦 Build Manual
+## 🔧 Configuração e Build
 
-Se necessário, para gerar o `.jar`:
+### Variáveis de Ambiente
+
+**Para este case técnico**, as configurações já vêm com valores padrão funcionais em `application.yml` e `docker-compose.yml`, permitindo execução imediata sem setup adicional.
+
+**⚠️ IMPORTANTE:** Em ambiente de produção, SEMPRE usar variáveis de ambiente e secrets managers (AWS Secrets Manager, HashiCorp Vault, etc). Nunca comitar credenciais no código.
+
+Exemplo de customização (opcional):
 ```bash
-mvn clean package
+# .env
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=ecommerce
+DB_USER=seu_usuario
+DB_PASSWORD=sua_senha_segura
+JWT_SECRET=sua_chave_secreta_min_256bits
 ```
 
-O arquivo será gerado em `target/ecommerce-api-0.0.1-SNAPSHOT.jar`
+### Build Local
 
-## 🛑 Parar a Aplicação
+Se necessário gerar o JAR manualmente:
+
 ```bash
-# Parar containers
+./mvnw clean package
+```
+
+O artefato será gerado em: `target/ecommerce-api-0.0.1-SNAPSHOT.jar`
+
+### Executando o JAR
+**Observação:** Garanta que o banco de dados está rodando ao executar diretamente o arquivo .jar
+
+```bash
+java -jar target/ecommerce-api-0.0.1-SNAPSHOT.jar
+```
+
+## 🛑 Gerenciamento de Containers
+
+```bash
+# Parar aplicação
 docker-compose down
 
-# Parar e limpar volumes (banco de dados)
+# Parar e limpar volumes (reseta banco de dados)
 docker-compose down -v
+
+# Ver logs da aplicação
+docker-compose logs -f app
+
+# Reconstruir imagens após mudanças no código
+docker-compose up -d --build
 ```
 
-## 🚀 Evoluções Futuras
+## 🔒 Considerações de Segurança
 
-Pensando em cenários de produção e escalabilidade, as seguintes evoluções são recomendadas:
+### Implementado neste Case
 
-### Arquitetura
-- Migração para **arquitetura de microserviços**
-    - Separação em serviços: Auth, Products, Orders, Payments, Reports
-    - Comunicação assíncrona via mensageria (RabbitMQ/Kafka)
-    - Event-driven architecture
+✅ **Autenticação JWT** com Spring Security  
+✅ **BCrypt** para hash de senhas  
+✅ **Autorização baseada em Roles** (ADMIN/USER)  
+✅ **Validação de entrada** com Bean Validation  
+✅ **Proteção contra SQL Injection** via JPA/Hibernate
 
-### Orquestração e Escalabilidade
-- **Kubernetes** para orquestração de containers
-    - Deployments com ReplicaSets
-    - Horizontal Pod Autoscaler (HPA)
-    - Load balancing automático
-    - Health checks e self-healing
+### Para Produção
 
-### Infraestrutura
-- **Service Mesh** (Istio/Linkerd) para controle de tráfego
-- **API Gateway** (Kong/AWS API Gateway) como ponto de entrada único
-- **Cache distribuído** (Redis) para melhor performance
-- **CDN** para assets estáticos
+Em um ambiente real, considerar adicionar:
+
+- **Rate Limiting** para prevenir abuso de API
+- **HTTPS obrigatório** com certificados válidos
+- **CORS** configurado restritivamente
+- **Auditoria completa** de ações sensíveis
+- **Rotação de JWT secrets** periodicamente
+- **Tokens de refresh** para melhor UX sem comprometer segurança
+
+> 📖 Detalhes sobre decisões de segurança em [ADR-002](./docs/decisions/ADR-002-jwt-autenticacao.md)
+
+## 🚀 Melhorias futuras
+
+Com mais tempo disponível, existem várias melhorias que considero essenciais para elevar este projeto a um nível production-ready. Priorizo sempre entregar funcionalidades sólidas dentro do prazo, mas reconheço onde investiria esforços adicionais:
+
+### Testes Automatizados
+
+**Por que não implementei agora:**
+- Foco em entregar funcionalidades completas e bem documentadas no prazo do case
+- Priorizei testes manuais sistemáticos via Postman com validações de todos os cenários
+- Validação completa de regras de negócio através de testes exploratórios
+
+**O que implementaria:**
+- **Testes Unitários** com JUnit 5 e Mockito para camada de serviço
+- **Testes de Integração** com `@SpringBootTest` para validar fluxos completos
+- **Testes de Segurança** validando autenticação, autorização e cenários de acesso negado
+- **Cobertura mínima de 80%** com relatórios via JaCoCo
+
+### Arquitetura e Escalabilidade
+
+**Microsserviços:**
+- Migração incremental para microserviços quando justificado por volume
+- Separação em serviços: Auth, Products, Orders, Payments, Reports
+- Event-driven architecture com mensageria (RabbitMQ/Kafka)
+- CQRS para otimizar leitura/escrita em contextos críticos
+
+**Infraestrutura:**
+- Orquestração com **Kubernetes** (deployments, HPA, health checks)
+- **Service Mesh** (Istio/Linkerd) para resiliência e observabilidade
+- **API Gateway** centralizado (Kong/AWS API Gateway)
+- **Cache distribuído** com Redis para queries frequentes
+
+**Gerais**
+- Ajuste no tipo de ID para UUID autogerado em campos PK
 
 ### Observabilidade
-- Distributed tracing (Jaeger/Zipkin)
-- Centralized logging (ELK Stack)
-- Advanced monitoring (Prometheus + Grafana)
 
-### Segurança
-- Secrets management (Vault/AWS Secrets Manager)
-- Certificate management automatizado
-- Rate limiting por usuário/IP
-- WAF (Web Application Firewall)
+**Logging e Monitoramento:**
+- **Spring Boot Actuator** com métricas customizadas
+- **Prometheus + Grafana** para dashboards em tempo real
+- **ELK Stack** (Elasticsearch, Logstash, Kibana) para logging centralizado
+- **Distributed Tracing** com Jaeger/Zipkin para rastreamento entre serviços
+- **Alertas proativos** baseados em SLOs (Service Level Objectives)
 
+### Segurança Avançada
+
+**Proteções Adicionais:**
+- **Rate Limiting** por IP/usuário com Redis/Bucket4j
+- **Refresh Tokens** para melhor UX sem comprometer segurança
+- **OAuth 2.0** para integração com provedores externos
+- **Auditoria completa** de ações sensíveis (criar/atualizar/deletar)
+- **Rotating secrets** com gerenciadores (AWS Secrets Manager, Vault)
+- **WAF** (Web Application Firewall) para proteção contra ataques comuns
+
+### Performance e Otimização
+
+**Banco de Dados:**
+- **Read replicas** para distribuir carga de leitura
+- **Particionamento** de tabelas grandes (orders, order_items)
+- **Índices compostos** adicionais baseados em análise de queries
+- **Connection pooling** otimizado (HikariCP tuning)
+
+**Aplicação:**
+- **Cache de segundo nível** do Hibernate para entidades frequentes
+- **Lazy loading** otimizado para evitar N+1 queries
+- **Async processing** com `@Async` para operações não-críticas
+- **Batch processing** para importações e relatórios pesados
+
+### CI/CD e DevOps
+
+**Pipeline Completo:**
+- **GitHub Actions** ou GitLab CI com stages: build → test → security scan → deploy
+- **Análise estática** com SonarQube (qualidade, vulnerabilidades, code smells)
+- **Testes de performance** automatizados (JMeter/Gatling)
+- **Blue-Green deployment** ou Canary releases para deploys sem downtime
+- **Rollback automático** em caso de falhas
+
+### Documentação
+
+**Aprimoramentos:**
+- **Postman Collections** exportadas e versionadas no repositório
+- **Guia de contribuição** para novos desenvolvedores
+- **Runbooks** para troubleshooting de cenários comuns
+- **Architecture Decision Log** contínuo para novas decisões
+- **API versioning** com estratégia clara de deprecação
+
+---
+
+> 💡 **Filosofia de desenvolvimento:** Prefiro entregar funcionalidades completas e bem testadas manualmente dentro do prazo do que código com falhas e testes superficiais. A arquitetura atual já está preparada para todas essas evoluções, com módulos bem definidos e baixo acoplamento ([ADR-001](./docs/decisions/ADR-001-arquitetura-modular.md)).
 ## 📊 Status do Projeto
 
-🚧 **Em desenvolvimento** - Case técnico para vaga de Desenvolvedor Backend Pleno
+✅ **Completo** - Case técnico desenvolvido para processo seletivo
+
+**Autor:** Danrley Brasil dos Santos  
+**Objetivo:** Demonstração de habilidades em desenvolvimento backend com Spring Boot
 
 ## 📄 Licença
 
 Este projeto está sob a licença [MIT](LICENSE).
+
+---
+
+**Desenvolvido com Spring Boot** ☕ | [Documentação](http://localhost:8080/swagger-ui.html) | [Issues](https://github.com/DanrleyBrasil/ecommerce-api-case/issues)

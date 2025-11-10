@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -85,8 +86,8 @@ public class ProductController {
             description = "Lista produtos com filtros opcionais e paginação. Acesso público."
     )
     public ResponseEntity<Page<ProductResponse>> getAllProducts(
-            @ModelAttribute ProductFilterRequest filters,
-            @PageableDefault(size = 20, sort = "name") Pageable pageable
+            @ParameterObject ProductFilterRequest filters,
+            @ParameterObject @PageableDefault(size = 20, sort = "name") Pageable pageable
     ) {
         Page<ProductResponse> response = productService.getAllProducts(filters, pageable);
         return ResponseEntity.ok(response);

@@ -1,6 +1,7 @@
 package com.danrley.ecommerce.orders.service;
 
 
+import com.danrley.ecommerce.orders.dto.CreateOrderRequest;
 import com.danrley.ecommerce.orders.dto.OrderResponse;
 import com.danrley.ecommerce.orders.entity.Order;
 import com.danrley.ecommerce.orders.entity.OrderItem;
@@ -116,7 +117,7 @@ public class OrderService {
      * @throws InsufficientStockException se estoque insuficiente
      */
     @Transactional
-    public OrderResponse createOrder(com.danrley.ecommerce.orders.dto.CreateOrderRequest request, Long userId) {
+    public OrderResponse createOrder(CreateOrderRequest request, Long userId) {
         log.info("Criando pedido para userId={} com {} itens", userId, request.getItems().size());
 
         // 1. Validar e buscar produtos

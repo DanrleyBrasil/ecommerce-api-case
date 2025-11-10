@@ -23,7 +23,7 @@ Ao iniciar o desenvolvimento da API de e-commerce, foi necessário definir a arq
 ### Requisitos Técnicos
 
 - ✅ Prazo de entrega: 6 dias
-- ✅ Demonstrar capacidade técnica sênior
+- ✅ Demonstrar capacidade técnica pleno/sênior
 - ✅ Código limpo e organizado
 - ✅ Facilitar manutenção e evolução futura
 - ✅ Permitir teste e avaliação rápida
@@ -153,7 +153,7 @@ src/main/java/com/ecommerce/
 
 ## ✅ Decisão
 
-**Adotamos Arquitetura Modular Monolítica** com os seguintes princípios:
+**Adotada Arquitetura Modular Monolítica** com os seguintes princípios:
 
 ### 1. **Separação por Bounded Context (DDD Light)**
 

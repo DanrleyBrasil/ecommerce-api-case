@@ -325,33 +325,11 @@ ORDER BY pph.changed_at ASC;
 
 ---
 
-## 🏆 Valor Demonstrado
-
-Esta decisão demonstra:
-
-1. **Pragmatismo Técnico**
-    - Não implementar features "porque é enterprise"
-    - Implementar onde há ROI real
-
-2. **Conhecimento de Trade-offs**
-    - Volume de dados vs valor de auditoria
-    - Complexidade vs benefício
-
-3. **Visão de Longo Prazo**
-    - Documentar evolução futura
-    - Preparar para crescimento sem over-engineering inicial
-
-4. **Maturidade Arquitetural**
-    - Escolhas conscientes e justificadas
-    - Balance entre simplicidade e valor
-
 ---
 
 ## 📚 Referências
 
 - [Audit Trail Patterns - Martin Fowler](https://martinfowler.com/eaaDev/AuditLog.html)
-- [Event Sourcing vs Audit Log](https://www.eventstore.com/blog/event-sourcing-and-cqrs)
-- [Database Auditing Best Practices](https://www.red-gate.com/simple-talk/databases/sql-server/database-administration-sql-server/sql-server-audit-feature/)
 
 ---
 
