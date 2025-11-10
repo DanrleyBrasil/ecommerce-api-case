@@ -31,7 +31,6 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
 
-    // MANTENHA ESTE BEAN - ele é a melhor prática
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers(
@@ -49,12 +48,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Permite requisições de qualquer origem, ideal para desenvolvimento.
-        // Em produção, restrinja para o domínio do seu frontend.
         configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
-        configuration.setAllowCredentials(true); // Importante se você usar cookies ou autenticação
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -69,7 +66,6 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/actuator/health").permitAll()
-                        // DENTRO DO MÉTODO securityFilterChain, na seção requestMatchers:
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll() // GET público
                         .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN") // CREATE apenas ADMIN
                         .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN") // UPDATE apenas ADMIN
