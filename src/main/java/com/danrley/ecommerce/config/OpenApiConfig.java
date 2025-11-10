@@ -15,13 +15,13 @@ import org.springframework.context.annotation.Configuration;
         security = @SecurityRequirement(name = "bearerAuth")
 )
 @SecurityScheme(
-        name = "bearerAuth", // Um nome para a sua definição de segurança
+        name = "bearerAuth",
         description = "Token JWT para autenticação. Insira 'Bearer ' antes do seu token.",
         scheme = "bearer",
-        type = SecuritySchemeType.HTTP, // O tipo de esquema é HTTP
-        bearerFormat = "JWT", // O formato do token
-        in = SecuritySchemeIn.HEADER, // O token é enviado no header
-        paramName = "Authorization" // O nome do header é "Authorization"
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        in = SecuritySchemeIn.HEADER,
+        paramName = "Authorization"
 )
 public class OpenApiConfig {
     // Esta classe pode ficar vazia, as anotações fazem todo o trabalho.

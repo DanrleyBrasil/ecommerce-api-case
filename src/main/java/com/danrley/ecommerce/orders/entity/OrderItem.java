@@ -66,8 +66,6 @@ public class OrderItem extends BaseEntity {
      * O campo 'private Long productId' foi REMOVIDO para simplificar o mapeamento.
      * Para obter o ID, use 'product.getId()'.
      */
-    // ======================== FIM DA ALTERAÇÃO 2 =========================
-
 
     /**
      * Quantidade do produto neste item.

@@ -365,10 +365,8 @@ public class OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
-            // ===== ALTERAÇÃO 1: A linha abaixo foi removida pois é redundante. =====
-            // orderItem.setProductId(product.getId());
             orderItem.setQuantity(item.getQuantity());
-            orderItem.setUnitPrice(product.getPrice()); // Snapshot!
+            orderItem.setUnitPrice(product.getPrice());
             // subtotal será calculado automaticamente via @PrePersist
 
             orderItems.add(orderItem);
@@ -390,12 +388,7 @@ public class OrderService {
      */
     private void releaseReservations(Order order) {
         for (OrderItem item : order.getItems()) {
-            // ===== ALTERAÇÃO 2: Acessa o produto diretamente do item, sem nova busca no banco. =====
             Product product = item.getProduct();
-
-            // A busca antiga foi removida:
-            // Product product = productRepository.findById(item.getProductId())
-            //         .orElseThrow(() -> new ResourceNotFoundException("Product", "id", item.getProductId()));
 
             int newReservedQuantity = product.getReservedQuantity() - item.getQuantity();
             product.setReservedQuantity(Math.max(0, newReservedQuantity)); // Garantir >= 0

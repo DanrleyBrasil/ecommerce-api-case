@@ -40,7 +40,6 @@ public class JpaAuditingConfig {
     @Bean
     public AuditorAware<String> auditorProvider() {
         // Mock por enquanto - retorna "system"
-        // Será refinado no MACRO 6 para pegar usuário do JWT
         return () -> Optional.of("system");
     }
 }
