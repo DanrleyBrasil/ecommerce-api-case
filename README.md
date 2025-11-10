@@ -308,7 +308,7 @@ Com mais tempo disponível, existem várias melhorias que considero essenciais p
 > 💡 **Filosofia de desenvolvimento:** Prefiro entregar funcionalidades completas e bem testadas manualmente dentro do prazo do que código com falhas e testes superficiais. A arquitetura atual já está preparada para todas essas evoluções, com módulos bem definidos e baixo acoplamento ([ADR-001](./docs/decisions/ADR-001-arquitetura-modular.md)).
 ## 📊 Status do Projeto
 
-✅ **Completo** - Case técnico desenvolvido para processo seletivo
+✅ **Completo** - Case técnico
 
 **Autor:** Danrley Brasil dos Santos  
 **Objetivo:** Demonstração de habilidades em desenvolvimento backend com Spring Boot
