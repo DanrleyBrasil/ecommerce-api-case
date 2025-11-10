@@ -10,6 +10,9 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
+    -- Selecionar database
+USE ecommerce;
+
 -- Dropar tabelas existentes (ordem inversa das FKs)
 DROP TABLE IF EXISTS product_price_history;
 DROP TABLE IF EXISTS order_items;

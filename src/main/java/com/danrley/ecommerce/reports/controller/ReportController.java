@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 /**
@@ -202,7 +203,7 @@ public class ReportController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Faturamento por período",
-            description = "Calcula a receita total e quantidade de pedidos aprovados em um intervalo de datas. Apenas ADMIN."
+            description = "Calcula a receita total e quantidade de pedidos aprovados em um intervalo de datas. Apenas ADMIN. Se nenhuma data for informada, o mês atual será utilizado como padrão."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -212,7 +213,7 @@ public class ReportController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Parâmetros inválidos (datas ausentes ou startDate > endDate)",
+                    description = "Parâmetros inválidos (startDate > endDate)",
                     content = @Content
             ),
             @ApiResponse(
@@ -227,17 +228,30 @@ public class ReportController {
             )
     })
     public ResponseEntity<TotalRevenueDTO> getTotalRevenue(
-            @Parameter(description = "Data de início (formato: yyyy-MM-dd)", required = true, example = "2025-01-01")
-            @RequestParam
+            @Parameter(description = "Data de início (formato: yyyy-MM-dd)", example = "2025-01-01")
+            @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate startDate,
 
-            @Parameter(description = "Data de fim (formato: yyyy-MM-dd)", required = true, example = "2025-01-31")
-            @RequestParam
+            @Parameter(description = "Data de fim (formato: yyyy-MM-dd)", example = "2025-01-31")
+            @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate endDate
     ) {
-        TotalRevenueDTO revenue = reportService.getTotalRevenue(startDate, endDate);
+        LocalDate start;
+        LocalDate end;
+
+        if (startDate == null || endDate == null) {
+            LocalDate today = LocalDate.now();
+            start = today.with(TemporalAdjusters.firstDayOfMonth()); // Define o primeiro dia do mês atual.
+            end = today.with(TemporalAdjusters.lastDayOfMonth()); // Define o último dia do mês atual.
+        } else {
+            start = startDate;
+            end = endDate;
+        }
+
+        TotalRevenueDTO revenue = reportService.getTotalRevenue(start, end);
         return ResponseEntity.ok(revenue);
     }
+
 }

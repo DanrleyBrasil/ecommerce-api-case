@@ -1,0 +1,39 @@
+# =========================================
+# PROFILE: docker
+# =========================================
+# Usado pelo docker-compose.yml
+# Ativar com: SPRING_PROFILES_ACTIVE=docker
+# =========================================
+
+spring:
+  datasource:
+    url: jdbc:mysql://${DB_HOST:mysql}:${DB_PORT:3306}/${DB_NAME:ecommerce}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: none # Usar dump.sql
+    show-sql: false  # Menos verboso em Docker
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false
+
+# =========================================
+# Logging (DOCKER - Menos verboso)
+# =========================================
+logging:
+  level:
+    root: INFO
+    com.danrley.ecommerce: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.scheduling: INFO  # ✅ Ver logs do scheduler
+    org.hibernate: WARN

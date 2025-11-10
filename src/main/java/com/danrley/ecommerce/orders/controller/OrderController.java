@@ -351,7 +351,7 @@ public class OrderController {
      * @return ResponseEntity vazio (204 No Content)
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @Operation(
             summary = "Cancelar pedido (ADMIN)",
             description = "Cancela um pedido PENDENTE e libera a reserva de estoque. Apenas ADMIN pode executar.",
