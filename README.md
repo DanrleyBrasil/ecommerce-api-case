@@ -38,36 +38,45 @@ O projeto segue uma **arquitetura modular monolítica**, organizando o código p
 
 ```
 src/main/java/com/danrley/ecommerce/
-├── shared/              # Componentes transversais
-│   ├── entity/         # BaseEntity com auditoria automática
-│   ├── enums/          # Enums compartilhados (OrderStatus, PaymentStatus, etc)
-│   └── exception/      # Tratamento global de exceções
-│
 ├── auth/               # Autenticação e Autorização
+│   ├── config/        # Camada de configurações gerais
 │   ├── controller/    # Endpoints de login/registro
 │   ├── service/       # Lógica de autenticação e geração de JWT
+│   ├── repository/    # Camada JPA integrada diretamente para rotinas de autenticação
 │   ├── security/      # Filtros, providers e configurações Spring Security
 │   ├── entity/        # User, Role
 │   └── dto/           # LoginRequest, AuthResponse
 │
-├── products/          # Gestão de Catálogo
-│   ├── controller/   # CRUD de produtos (com soft delete)
-│   ├── service/      # Regras de negócio e validações
-│   ├── repository/   # Consultas JPA customizadas
-│   ├── entity/       # Product, Category, Supplier
-│   └── dto/          # ProductRequest, ProductResponse
+├── config/              # Configurações Transversais
 │
 ├── orders/           # Processamento de Pedidos
 │   ├── controller/  # Criação e consulta de pedidos
 │   ├── service/     # Lógica de pedidos e controle de estoque
 │   ├── repository/  # Queries otimizadas com locks pessimistas
 │   ├── entity/      # Order, OrderItem, Payment
-│   └── dto/         # OrderRequest, OrderResponse
+│   ├── dto/         # OrderRequest, OrderResponse
+│   ├── mapper/      # Mapper manual para conversão entre entidades e DTOs de pedidos
+│   └── scheduler/   # Scheduler responsável por expirar pedidos pendentes automaticamente
 │
-└── reports/         # Relatórios Gerenciais
-    ├── controller/ # Endpoints administrativos
-    ├── service/    # Agregações e queries SQL otimizadas
-    └── dto/        # DTOs especializados para relatórios
+├── products/          # Gestão de Catálogo
+│   ├── controller/   # CRUD de produtos (com soft delete)
+│   ├── service/      # Regras de negócio e validações
+│   ├── repository/   # Consultas JPA customizadas
+│   ├── entity/       # Product, Category, Supplier
+│   ├── dto/          # ProductRequest, ProductResponse
+│   └── mapper/       # Mapper manual para conversão entre Entity e DTO.
+│
+├── reports/          # Relatórios Gerenciais
+│   ├── controller/  # Endpoints administrativos
+│   ├── service/     # Agregações e queries SQL otimizadas
+│   ├── repository/  # Agregações e queries SQL otimizadas
+│   └── dto/         # Implementação apenas para consultas personalizadas usando EntityManager
+│
+├── shared/              # Componentes transversais
+|   ├── converter/      # Conversão de Map para JSON na persistência e JSON para Map na leitura
+│   ├── entity/         # BaseEntity com auditoria automática
+│   ├── enums/          # Enums compartilhados (OrderStatus, PaymentStatus, etc)
+│   └── exception/      # Tratamento global de exceções
 ```
 
 ### Decisões Arquiteturais (ADRs)
