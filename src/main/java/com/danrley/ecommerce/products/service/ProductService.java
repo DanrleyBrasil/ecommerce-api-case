@@ -13,16 +13,20 @@ import com.danrley.ecommerce.products.repository.ProductPriceHistoryRepository;
 import com.danrley.ecommerce.products.repository.ProductRepository;
 import com.danrley.ecommerce.products.repository.SupplierRepository;
 import com.danrley.ecommerce.shared.exception.BusinessException;
+import com.danrley.ecommerce.shared.exception.InsufficientStockException;
 import com.danrley.ecommerce.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Service responsável pela lógica de negócio de produtos.
@@ -31,6 +35,7 @@ import java.math.BigDecimal;
  * @author Danrley Brasil dos Santos
  * @since 1.0
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -198,9 +203,9 @@ public class ProductService {
     // ========== MÉTODOS AUXILIARES ==========
 
     /**
-     * Busca produto por ID ou lança exceção.
+     * Busca produto por ID ou lança exceção. (Tornado público para uso interno por outros serviços)
      */
-    private Product findProductByIdOrThrow(Long id) {
+    public Product findProductByIdOrThrow(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com ID: " + id));
     }
@@ -242,43 +247,85 @@ public class ProductService {
         if (filters == null) {
             return spec;
         }
-
-        // Filtro: nome (contém - case insensitive)
         if (filters.getName() != null && !filters.getName().isBlank()) {
             spec = spec.and((root, query, cb) ->
                     cb.like(cb.lower(root.get("name")), "%" + filters.getName().toLowerCase() + "%"));
         }
-
-        // Filtro: categoria
         if (filters.getCategoryId() != null) {
             spec = spec.and((root, query, cb) ->
                     cb.equal(root.get("category").get("id"), filters.getCategoryId()));
         }
-
-        // Filtro: fornecedor
         if (filters.getSupplierId() != null) {
             spec = spec.and((root, query, cb) ->
                     cb.equal(root.get("supplier").get("id"), filters.getSupplierId()));
         }
-
-        // Filtro: preço mínimo
         if (filters.getMinPrice() != null) {
             spec = spec.and((root, query, cb) ->
                     cb.greaterThanOrEqualTo(root.get("price"), filters.getMinPrice()));
         }
-
-        // Filtro: preço máximo
         if (filters.getMaxPrice() != null) {
             spec = spec.and((root, query, cb) ->
                     cb.lessThanOrEqualTo(root.get("price"), filters.getMaxPrice()));
         }
-
-        // Filtro: ativo/inativo
         if (filters.getActive() != null) {
             spec = spec.and((root, query, cb) ->
                     cb.equal(root.get("active"), filters.getActive()));
         }
-
         return spec;
+    }
+
+    /**
+     * Retorna uma lista de entidades Product para uma lista de IDs.
+     * Este método serve como o contrato de serviço para o módulo de Pedidos.
+     * Garante que as entidades sejam buscadas dentro do contexto transacional correto.
+     * @param productIds Lista de IDs de produtos a serem buscados.
+     * @return Lista de entidades Product.
+     */
+    @Transactional(readOnly = true, propagation = Propagation.MANDATORY)
+    public List<Product> findProductsByIds(List<Long> productIds) {
+        return productRepository.findAllById(productIds);
+    }
+
+    /**
+     * Finaliza a baixa de estoque de um produto com lock pessimista.
+     * Este método é chamado durante o processamento de pagamento para garantir consistência.
+     *
+     * @param productId O ID do produto a ser processado.
+     * @param quantity A quantidade a ser debitada.
+     * @throws ResourceNotFoundException se o produto não for encontrado.
+     * @throws InsufficientStockException se o estoque for insuficiente durante a revalidação.
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void finalizeStockDebit(Long productId, Integer quantity) {
+        // LOCK PESSIMISTA: delega a chamada para o método customizado do repositório
+        Product product = productRepository.findByIdWithLock(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
+
+        // Re-validar estoque (pode ter mudado desde a criação do pedido)
+        int availableStock = product.getStockQuantity() - product.getReservedQuantity();
+
+        if (availableStock < quantity) {
+            log.error("Estoque insuficiente durante pagamento (lock): productId={}, disponível={}, solicitado={}",
+                    product.getId(), availableStock, quantity);
+
+            throw new InsufficientStockException(
+                    product.getId(),
+                    product.getName(),
+                    quantity,
+                    availableStock
+            );
+        }
+
+        // Baixar estoque definitivamente
+        int newStockQuantity = product.getStockQuantity() - quantity;
+        product.setStockQuantity(newStockQuantity);
+
+        // Liberar reserva
+        int newReservedQuantity = product.getReservedQuantity() - quantity;
+        product.setReservedQuantity(Math.max(0, newReservedQuantity)); // Garantir >= 0
+
+        // O save é gerenciado pela transação do PaymentService
+        log.debug("Estoque finalizado com lock: productId={}, newStock={}, newReserved={}",
+                product.getId(), newStockQuantity, newReservedQuantity);
     }
 }

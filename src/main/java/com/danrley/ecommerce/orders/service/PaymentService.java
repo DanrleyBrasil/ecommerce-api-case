@@ -5,6 +5,7 @@ import com.danrley.ecommerce.orders.entity.OrderItem;
 import com.danrley.ecommerce.orders.repository.OrderRepository;
 import com.danrley.ecommerce.products.entity.Product;
 import com.danrley.ecommerce.products.repository.ProductRepository;
+import com.danrley.ecommerce.products.service.ProductService;
 import com.danrley.ecommerce.shared.enums.OrderStatus;
 import com.danrley.ecommerce.shared.exception.InsufficientStockException;
 import com.danrley.ecommerce.shared.exception.InvalidOrderStatusException;
@@ -56,7 +57,7 @@ import java.time.LocalDateTime;
 public class PaymentService {
 
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
+    private final ProductService productService;
 
     /**
      * Processa pagamento de um pedido com locks pessimistas.
@@ -146,52 +147,24 @@ public class PaymentService {
      * Processa item individual do pedido com lock pessimista.
      *
      * <p><strong>Lock Pessimista (SELECT FOR UPDATE):</strong></p>
-     * <p>Garante que nenhum outro processo pode ler ou modificar
-     * este produto até o commit da transação.</p>
+     * <p>A lógica de lock é DELEGADA para o ProductService, que é o
+     * guardião da consistência do estoque.</p>
      *
-     * <p><strong>Operações Atômicas:</strong></p>
+     * <p><strong>Operações Atômicas (no ProductService):</strong></p>
      * <ol>
-     *   <li>Buscar produto com lock (findByIdWithLock)</li>
+     *   <li>Buscar produto com lock</li>
      *   <li>Re-validar estoque</li>
      *   <li>Baixar estoque (stock_quantity)</li>
      *   <li>Liberar reserva (reserved_quantity)</li>
      * </ol>
      *
      * @param item Item a ser processado
-     * @throws ResourceNotFoundException se produto não existir
-     * @throws InsufficientStockException se estoque insuficiente
+     * @throws ResourceNotFoundException se produto não existir (lançado pelo ProductService)
+     * @throws InsufficientStockException se estoque insuficiente (lançado pelo ProductService)
      */
     private void processOrderItem(OrderItem item) {
-        // LOCK PESSIMISTA: nenhum outro processo pode modificar este produto
-        Product product = productRepository.findByIdWithLock(item.getProduct().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", item.getProduct().getId()));
-
-        // Re-validar estoque (pode ter mudado desde a criação do pedido)
-        int availableStock = product.getStockQuantity() - product.getReservedQuantity();
-
-        if (availableStock < item.getQuantity()) {
-            log.error("Estoque insuficiente durante pagamento: productId={}, disponível={}, solicitado={}",
-                    product.getId(), availableStock, item.getQuantity());
-
-            throw new InsufficientStockException(
-                    product.getId(),
-                    product.getName(),
-                    item.getQuantity(),
-                    availableStock
-            );
-        }
-
-        // Baixar estoque definitivamente
-        int newStockQuantity = product.getStockQuantity() - item.getQuantity();
-        product.setStockQuantity(newStockQuantity);
-
-        // Liberar reserva
-        int newReservedQuantity = product.getReservedQuantity() - item.getQuantity();
-        product.setReservedQuantity(Math.max(0, newReservedQuantity)); // Garantir >= 0
-
-        productRepository.save(product);
-
-        log.debug("Estoque atualizado com lock: productId={}, newStock={}, newReserved={}",
-                product.getId(), newStockQuantity, newReservedQuantity);
+        // Delega toda a lógica de lock, validação e baixa de estoque para o ProductService.
+        // O PaymentService apenas orquestra a chamada.
+        productService.finalizeStockDebit(item.getProduct().getId(), item.getQuantity());
     }
 }

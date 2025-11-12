@@ -98,9 +98,7 @@ public class OrderItem extends BaseEntity {
     @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
-    // ========================================
     // CONSTRUTORES
-    // ========================================
 
     public OrderItem() {
     }
@@ -119,9 +117,7 @@ public class OrderItem extends BaseEntity {
         this.subtotal = calculateSubtotal();
     }
 
-    // ========================================
     // MÉTODOS DE NEGÓCIO
-    // ========================================
 
     /**
      * Calcula o subtotal do item (quantity × unitPrice).

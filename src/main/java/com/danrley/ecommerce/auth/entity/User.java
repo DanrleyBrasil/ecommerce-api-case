@@ -61,9 +61,8 @@ public class User extends BaseEntity implements UserDetails {
     @Builder.Default // ✅ IMPORTANTE: Define valor padrão no builder
     private Set<Role> roles = new HashSet<>();
 
-    // ========================================
-    // Implementação de UserDetails (Spring Security)
-    // ========================================
+        // Implementação de UserDetails (Spring Security)
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

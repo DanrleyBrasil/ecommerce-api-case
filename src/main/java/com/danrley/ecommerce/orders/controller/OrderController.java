@@ -372,9 +372,7 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
-    // ========================================
     // MÉTODOS AUXILIARES PRIVADOS
-    // ========================================
 
     /**
      * Extrai userId do claim customizado do JWT.

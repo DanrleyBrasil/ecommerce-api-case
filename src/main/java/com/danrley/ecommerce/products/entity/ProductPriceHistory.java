@@ -110,9 +110,7 @@ public class ProductPriceHistory {
     @Column(name = "reason", length = 255)
     private String reason;
 
-    // ========================================
     // CONSTRUTORES
-    // ========================================
 
     public ProductPriceHistory() {
         this.changedAt = LocalDateTime.now();
@@ -148,9 +146,7 @@ public class ProductPriceHistory {
         this.reason = reason;
     }
 
-    // ========================================
     // MÉTODOS DE NEGÓCIO
-    // ========================================
 
     /**
      * Calcula a diferença entre o novo preço e o antigo.
@@ -211,9 +207,7 @@ public class ProductPriceHistory {
         }
     }
 
-    // ========================================
     // EQUALS, HASHCODE, TOSTRING
-    // ========================================
 
     @Override
     public boolean equals(Object o) {

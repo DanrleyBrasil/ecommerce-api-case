@@ -118,18 +118,14 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderItem> items = new ArrayList<>();
 
-    // ========================================
     // CONSTRUTORES
-    // ========================================
 
     public Order() {
         this.orderDate = LocalDateTime.now();
         this.status = OrderStatus.PENDENTE;
     }
 
-    // ========================================
     // MÉTODOS DE NEGÓCIO
-    // ========================================
 
     /**
      * Calcula o valor total do pedido somando os subtotais dos itens.
@@ -230,9 +226,7 @@ public class Order extends BaseEntity {
 
 
 
-    // ========================================
     // EQUALS, HASHCODE, TOSTRING
-    // ========================================
 
     @Override
     public boolean equals(Object o) {

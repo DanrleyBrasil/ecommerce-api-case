@@ -1,13 +1,13 @@
 package com.danrley.ecommerce.orders.service;
 
-
 import com.danrley.ecommerce.orders.dto.CreateOrderRequest;
 import com.danrley.ecommerce.orders.dto.OrderResponse;
 import com.danrley.ecommerce.orders.entity.Order;
 import com.danrley.ecommerce.orders.entity.OrderItem;
+import com.danrley.ecommerce.orders.mapper.OrderMapper;
 import com.danrley.ecommerce.orders.repository.OrderRepository;
 import com.danrley.ecommerce.products.entity.Product;
-import com.danrley.ecommerce.products.repository.ProductRepository;
+import com.danrley.ecommerce.products.service.ProductService;
 import com.danrley.ecommerce.shared.enums.OrderStatus;
 import com.danrley.ecommerce.shared.exception.InsufficientStockException;
 import com.danrley.ecommerce.shared.exception.InvalidOrderStatusException;
@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service responsável pela lógica de negócio de pedidos.
@@ -68,8 +69,8 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
-    private final com.danrley.ecommerce.orders.mapper.OrderMapper orderMapper;
+    private final ProductService productService; // Alterado de ProductRepository para ProductService
+    private final OrderMapper orderMapper;
 
     /**
      * TTL da reserva de estoque em minutos.
@@ -147,7 +148,7 @@ public class OrderService {
 
         order.setTotalAmount(totalAmount);
 
-        // 7. Salvar Order (cascade persiste OrderItems automaticamente)
+        // 7. Salvar Order (cascade persiste OrderItems automaticamente e as mudanças em Product)
         Order savedOrder = orderRepository.save(order);
 
         log.info("Pedido criado com sucesso: orderId={}, totalAmount={}, reservedUntil={}",
@@ -211,7 +212,7 @@ public class OrderService {
     }
 
     /**
-     * Cancela um pedido manualmente.
+     * Cancela um pedido manually.
      *
      * <p><strong>Regras:</strong></p>
      * <ul>
@@ -241,14 +242,13 @@ public class OrderService {
 
         // Atualizar status
         order.cancel();
+        // O save do pedido também persistirá as alterações nos produtos devido à transação
         orderRepository.save(order);
 
         log.info("Pedido cancelado com sucesso: orderId={}", orderId);
     }
 
-    // ========================================
     // MÉTODOS AUXILIARES PRIVADOS
-    // ========================================
 
     /**
      * Valida e busca produtos do banco.
@@ -260,20 +260,22 @@ public class OrderService {
      * @throws ResourceNotFoundException se algum produto não existir ou estiver inativo
      */
     private List<Product> validateAndFetchProducts(List<com.danrley.ecommerce.orders.dto.OrderItemRequest> itemRequests) {
-        List<Product> products = new ArrayList<>();
+        List<Long> productIds = itemRequests.stream()
+                .map(com.danrley.ecommerce.orders.dto.OrderItemRequest::getProductId)
+                .collect(Collectors.toList());
 
-        for (com.danrley.ecommerce.orders.dto.OrderItemRequest item : itemRequests) {
-            Product product = productRepository.findById(item.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product", "id", item.getProductId()));
+        // Delega a busca para o ProductService
+        List<Product> products = productService.findProductsByIds(productIds);
 
-            // Validar se produto está ativo
-            if (!product.getActive()) {
-                throw new ResourceNotFoundException("Product", "id", item.getProductId());
-            }
-
-            products.add(product);
+        // Valida se todos os produtos foram encontrados e estão ativos
+        if (products.size() != productIds.size()) {
+            throw new ResourceNotFoundException("Um ou mais produtos não foram encontrados.");
         }
-
+        for (Product product : products) {
+            if (!product.getActive()) {
+                throw new ResourceNotFoundException("Product inativo", "id", product.getId());
+            }
+        }
         return products;
     }
 
@@ -335,11 +337,10 @@ public class OrderService {
             int newReservedQuantity = product.getReservedQuantity() + item.getQuantity();
             product.setReservedQuantity(newReservedQuantity);
 
-            productRepository.save(product);
-
-            log.debug("Estoque reservado: productId={}, quantity={}, newReserved={}",
+            log.debug("Estoque a ser reservado: productId={}, quantity={}, newReserved={}",
                     product.getId(), item.getQuantity(), newReservedQuantity);
         }
+        // O save das entidades Product será feito pelo cascade do Order ou pelo fim da transação
     }
 
     /**
@@ -393,10 +394,9 @@ public class OrderService {
             int newReservedQuantity = product.getReservedQuantity() - item.getQuantity();
             product.setReservedQuantity(Math.max(0, newReservedQuantity)); // Garantir >= 0
 
-            productRepository.save(product);
-
-            log.debug("Reserva liberada: productId={}, quantity={}, newReserved={}",
+            log.debug("Reserva a ser liberada: productId={}, quantity={}, newReserved={}",
                     product.getId(), item.getQuantity(), newReservedQuantity);
         }
+        // O save das entidades Product será feito pelo cascade do Order ou pelo fim da transação
     }
 }
